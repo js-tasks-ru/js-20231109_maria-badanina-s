@@ -5,7 +5,7 @@
  * @returns {object} - returns the new object
  */
 export const pick = (obj, ...fields) => {
-  let newObj = {};
+  const newObj = {};
   for (let value of Object.keys(obj)) {
     fields.forEach((el) =>
       el === value ? (newObj[value] = obj[value]) : null
