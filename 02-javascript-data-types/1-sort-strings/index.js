@@ -5,20 +5,22 @@
  * @returns {string[]}
  */
 
-function mySort(arr) {
+const LOCALE_OPTIONS = { sensitivity: "case", caseFirst: "upper" };
+
+function sortStringsAscending(arr) {
   const arrCopy = [...arr];
-  arrCopy.sort((a, b) =>
-    a.localeCompare(b, "ru", { sensitivity: "case", caseFirst: "upper" })
-  );
+  arrCopy.sort((a, b) => a.localeCompare(b, "ru", LOCALE_OPTIONS));
+  return arrCopy;
+}
+
+function sortStringsDescending(arr) {
+  const arrCopy = [...arr];
+  arrCopy.sort((a, b) => b.localeCompare(a, "ru", LOCALE_OPTIONS));
   return arrCopy;
 }
 
 export function sortStrings(arr, param = "asc") {
-  if (param === "asc") {
-    return mySort(arr);
-  } else if (param === "desc") {
-    return mySort(arr).reverse();
-  } else {
-    return arr;
-  }
+  const asc = sortStringsAscending(arr);
+  const desc = sortStringsDescending(arr);
+  return param === "desc" ? desc : asc;
 }
