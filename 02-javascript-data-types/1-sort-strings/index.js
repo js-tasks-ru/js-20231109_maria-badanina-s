@@ -22,5 +22,3 @@ export function sortStrings(arr, param = "asc") {
     return arr;
   }
 }
-
-console.log(sortStrings(["b", "c", "a"]));
