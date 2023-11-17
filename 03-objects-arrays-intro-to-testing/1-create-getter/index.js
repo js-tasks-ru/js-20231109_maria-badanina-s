@@ -7,13 +7,13 @@ export function createGetter(path) {
   const pathArr = path.split(".");
 
   return (obj) => {
-    let result = JSON.parse(JSON.stringify(obj));
+    let result = obj;
 
     for (const prop of pathArr) {
       if (result && result.hasOwnProperty(prop)) {
         result = result[prop];
       } else {
-        return undefined;
+        return;
       }
     }
     return result;

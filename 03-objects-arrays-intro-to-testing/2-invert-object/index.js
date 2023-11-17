@@ -7,7 +7,7 @@ export function invertObj(obj) {
   if (!obj) {
     return;
   }
-  let newObj = {};
+  const newObj = {};
   for (const prop in obj) {
     newObj[obj[prop]] = prop;
   }
