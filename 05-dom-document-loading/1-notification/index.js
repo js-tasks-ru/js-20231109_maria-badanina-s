@@ -5,15 +5,19 @@ export default class NotificationMessage {
     this.message = message;
     this.duration = duration;
     this.type = type;
-    this.element = document.createElement("div");
-    this.element.classList.add("notification", this.type);
-    this.element.style.setProperty("--value", `${this.duration / 1000}s`);
-    this.element.innerHTML = this.createTemplate();
-    document.body.appendChild(this.element);
+    this.element = this.createElement(this.createTemplate());
+    this.time = null;
+  }
+
+  createElement(template) {
+    const element = document.createElement("div");
+    element.innerHTML = template;
+    return element.firstElementChild;
   }
 
   createTemplate() {
     return `
+      <div class="notification ${this.type}" style="--value:20s">
         <div class="timer"></div>
         <div class="inner-wrapper">
           <div class="notification-header">${this.type}</div>
@@ -21,6 +25,7 @@ export default class NotificationMessage {
            ${this.message}
           </div>
         </div>
+      </div>
     `;
   }
 
@@ -28,7 +33,10 @@ export default class NotificationMessage {
     if (notificationDiv instanceof HTMLDivElement) {
       this.element = notificationDiv;
     }
-    setTimeout(() => {
+
+    document.body.appendChild(this.element);
+
+    this.timer = setTimeout(() => {
       this.remove();
     }, this.duration);
   }
@@ -39,7 +47,12 @@ export default class NotificationMessage {
     }
   }
 
+  destroyTimer() {
+    clearTimeout(this.timer);
+  }
+
   destroy() {
     this.remove();
+    this.destroyTimer();
   }
 }
