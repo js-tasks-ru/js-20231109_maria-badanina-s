@@ -123,7 +123,6 @@ export default class SortableTable {
     this.element.remove();
   }
 
-  // staff for testing 😐 (mild irritation)
   get subElements() {
     return {
       body: this.element.querySelector('[data-element="body"]'),
