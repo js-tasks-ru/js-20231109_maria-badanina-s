@@ -15,35 +15,41 @@ export default class SortableTable {
   }
   createTemplate(data) {
     return `
-      <div data-element="body" class="sortable-table__body">
-        ${this.createHeaderTemplate(this.headerConfig)}
-        ${data
-          .map((item) => {
-            const { images, title, quantity, price, sales, id } = item;
-            return this.createItemTemplate(
-              images?.[1]?.url,
-              title,
-              quantity,
-              price,
-              sales,
-              id
-            );
-          })
-          .join("")}
+      <div data-element="productsContainer" class="products-list__container">
+        <div  class="sortable-table">
+          ${this.createHeaderTemplate(this.headerConfig)}
+          <div data-element="body" class="sortable-table__body">
+            ${data
+              .map((item) => {
+                const { images, title, quantity, price, sales, id } = item;
+                return this.createItemTemplate(
+                  images?.[0]?.url,
+                  title,
+                  quantity,
+                  price,
+                  sales,
+                  id
+                );
+              })
+              .join("")}
+          </div>
+        </div>
       </div>
     `;
   }
   createItemTemplate(image, title, quantity, price, sales, link) {
     return `
-        <a href="/products/${link}" class="sortable-table__row">
-          <div class="sortable-table__cell">
-            <img class="sortable-table-image" alt="Image" src="${image}">
-          </div>
-          <div class="sortable-table__cell">${title}</div>
-          <div class="sortable-table__cell">${quantity}</div>
-          <div class="sortable-table__cell">${price}</div>
-          <div class="sortable-table__cell">${sales}</div>
-        </a>
+      <a href="/products/${link}" class="sortable-table__row">
+        ${
+          image
+            ? `<div class="sortable-table__cell"><img class="sortable-table-image" alt="Image" src="${image}"></div>`
+            : ""
+        }
+      ${title ? `<div class="sortable-table__cell">${title}</div>` : ""}
+      ${quantity ? `<div class="sortable-table__cell">${quantity}</div>` : ""}
+      ${price ? `<div class="sortable-table__cell">${price}</div>` : ""}
+      ${sales ? `<div class="sortable-table__cell">${sales}</div>` : ""}
+      </a>
     `;
   }
   createHeaderTemplate(headerData) {
@@ -68,7 +74,7 @@ export default class SortableTable {
     `;
   }
 
-  /// sorting logic
+  /// string sorting logic
   LOCALE_OPTIONS = { sensitivity: "case", caseFirst: "upper" };
   sortStringsAscending(arr) {
     const arrCopy = [...arr];
@@ -84,26 +90,43 @@ export default class SortableTable {
     );
     return arrCopy;
   }
+  sortedByTitle(data, param = "asc") {
+    const asc = this.sortStringsAscending(data);
+    const desc = this.sortStringsDescending(data);
+    return param === "desc" ? desc : asc;
+  }
 
-  sortedData(arr, param = "asc") {
-    const asc = this.sortStringsAscending(arr);
-    const desc = this.sortStringsDescending(arr);
+  /// number sorting logic
+  sortedByNumbers(data, param = "asc", fieldValue) {
+    const asc = data.slice().sort((a, b) => a[fieldValue] - b[fieldValue]);
+    const desc = data.slice().sort((a, b) => b[fieldValue] - a[fieldValue]);
     return param === "desc" ? desc : asc;
   }
 
   sort(fieldValue, orderValue) {
-    const newData = this.sortedData(this.data, orderValue);
+    const newData =
+      fieldValue === "title"
+        ? this.sortedByTitle(this.data, orderValue)
+        : this.sortedByNumbers(this.data, orderValue, fieldValue);
+
     const newTemplate = this.createElement(this.createTemplate(newData));
     this.update(this.element, newTemplate);
     this.element = newTemplate;
   }
 
-  // create update logic
+  // update logic
   update(oldElement, newElement) {
-    this.parent.replaceChild(newElement, oldElement);
+    this.parent?.replaceChild(newElement, oldElement);
   }
 
   destroy() {
     this.element.remove();
+  }
+
+  // staff for testing 😐 (mild irritation)
+  get subElements() {
+    return {
+      body: this.element.querySelector('[data-element="body"]'),
+    };
   }
 }
