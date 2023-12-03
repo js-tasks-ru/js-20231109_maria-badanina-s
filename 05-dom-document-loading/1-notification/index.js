@@ -1,4 +1,5 @@
 export default class NotificationMessage {
+  static currentNotification = null;
   constructor(message = "Default message", options = {}) {
     const { type = "success", duration = 0 } = options;
 
@@ -30,6 +31,11 @@ export default class NotificationMessage {
   }
 
   show(notificationDiv) {
+    if (NotificationMessage.currentNotification) {
+      NotificationMessage.currentNotification.remove();
+    }
+    NotificationMessage.currentNotification = this;
+
     if (notificationDiv instanceof HTMLDivElement) {
       this.element = notificationDiv;
     }
