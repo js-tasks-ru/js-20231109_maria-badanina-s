@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 export default class SortableTable {
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
