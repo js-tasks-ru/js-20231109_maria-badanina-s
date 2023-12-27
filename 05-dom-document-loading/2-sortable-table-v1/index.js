@@ -12,11 +12,15 @@ export default class SortableTable {
     element.innerHTML = template;
     return element.firstElementChild;
   }
-  createTemplate(data) {
+  createTemplate(data, orderValue, fieldValue) {
     return `
       <div data-element="productsContainer" class="products-list__container">
         <div  class="sortable-table">
-          ${this.createHeaderTemplate(this.headerConfig)}
+          ${this.createHeaderTemplate(
+            this.headerConfig,
+            orderValue,
+            fieldValue
+          )}
           <div data-element="body" class="sortable-table__body">
             ${data
               .map((item) => {
@@ -41,7 +45,7 @@ export default class SortableTable {
       <a href="/products/${link}" class="sortable-table__row">
         ${
           image
-            ? `<div class="sortable-table__cell"><img class="sortable-table-image" alt="Image" src="${image}"></div>`
+            ? `<div class="sortable-table__cell"><img class="sortable-table-image" alt="Image" ></div>`
             : ""
         }
       ${title ? `<div class="sortable-table__cell">${title}</div>` : ""}
@@ -51,14 +55,15 @@ export default class SortableTable {
       </a>
     `;
   }
-  createHeaderTemplate(headerData) {
+  createHeaderTemplate(headerData, orderValue, fieldValue) {
     return `
       <div data-element="header" class="sortable-table__header sortable-table__row">
         ${headerData
           .map((item) => {
             const { id, sortable, title } = item;
+            const order = fieldValue === id ? orderValue : "";
             return `
-              <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="">
+              <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="${order}">
                 <span>${title}</span>
                 ${
                   sortable
@@ -108,7 +113,9 @@ export default class SortableTable {
         ? this.sortedByTitle(this.data, orderValue)
         : this.sortedByNumbers(this.data, orderValue, fieldValue);
 
-    const newTemplate = this.createElement(this.createTemplate(newData));
+    const newTemplate = this.createElement(
+      this.createTemplate(newData, orderValue, fieldValue)
+    );
     this.update(this.element, newTemplate);
     this.element = newTemplate;
   }
@@ -125,6 +132,7 @@ export default class SortableTable {
   get subElements() {
     return {
       body: this.element.querySelector('[data-element="body"]'),
+      header: this.element.querySelector('[data-element="header"]'),
     };
   }
 }
