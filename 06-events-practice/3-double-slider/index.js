@@ -3,18 +3,22 @@ export default class DoubleSlider {
     min = 100,
     max = 200,
     formatValue = (value) => "$" + value,
-    selected = {
-      from: min,
-      to: max,
-    },
+    selected = {},
   } = {}) {
     this.min = min;
     this.max = max;
     this.formatValue = formatValue;
-    this.selected = selected;
+    this.from = selected.from && selected.from > min ? selected.from : min;
+    this.to = selected.to && selected.to < max ? selected.to : max;
     this.element = this.createElement(this.createTemplate());
     this.isLeftDragging = false;
     this.isRightDragging = false;
+
+    // this.doubleSlider = this.element.querySelector(".range-slider__inner");
+    // this.sliderProgress = this.element.querySelector(".range-slider__progress");
+    // this.leftThumb = this.element.querySelector(".range-slider__thumb-left");
+    // this.rightThumb = this.element.querySelector(".range-slider__thumb-right");
+    // this.initialize();
 
     document.addEventListener("DOMContentLoaded", () => {
       this.doubleSlider = document.querySelector(".range-slider__inner");
@@ -34,21 +38,19 @@ export default class DoubleSlider {
   createTemplate() {
     return `
         <div class="range-slider">
-          <span data-element="from">${this.formatValue(
-            this.selected.from
-          )}</span>
+          <span data-element="from">${this.formatValue(this.from)}</span>
           <div class="range-slider__inner">
             <span class="range-slider__progress" style="left: ${this.initLeftThumbPos(
-              this.selected?.from
-            )}%; right: ${this.initRightThumbPos(this.selected.to)}%"></span>
+              this.from
+            )}%; right: ${this.initRightThumbPos(this.to)}%"></span>
             <span class="range-slider__thumb-left" style="left: ${this.initLeftThumbPos(
-              this.selected.from
+              this.from
             )}%"></span>
             <span class="range-slider__thumb-right" style="right: ${this.initRightThumbPos(
-              this.selected.to
+              this.to
             )}%"></span>
           </div>
-          <span data-element="to">${this.formatValue(this.selected.to)}</span>
+          <span data-element="to">${this.formatValue(this.to)}</span>
         </div>
     `;
   }
@@ -115,38 +117,30 @@ export default class DoubleSlider {
 
     this.rightThumb.style.right = `${100 - this.pxToPercent(x)}%`;
     this.sliderProgress.style.right = `${100 - this.pxToPercent(x)}%`;
-    
+
     this.updateValues();
   }
 
   updateValues() {
-    // Get thumbs positions
+    const barWidth = this.rect.width;
     this.leftThumbPos =
       this.leftThumb.getBoundingClientRect().x -
       this.rect.left +
       this.leftThumb.offsetWidth;
-
     this.rightThumbPos =
       this.rightThumb.getBoundingClientRect().x - this.rect.left;
 
-    let leftValue = (this.leftThumbPos / this.rect.width) * 100;
-    let rightValue = (this.rightThumbPos / this.rect.width) * 100;
+    const leftValue =
+      (this.leftThumbPos / barWidth) * (this.max - this.min) + this.min;
 
-    // Select spans
-    const spans = this.element.querySelectorAll(".range-slider > span");
-    const minSpan = spans[0];
-    const maxSpan = spans[spans.length - 1];
+    const rightValue =
+      (this.rightThumbPos / barWidth) * (this.max - this.min) + this.min;
 
-    // Convert percents to units
-    const minDisplayValue =
-      this.min + (leftValue / 100) * (this.max - this.min);
+    const minSpan = this.element.querySelector('[data-element="from"]');
+    const maxSpan = this.element.querySelector('[data-element="to"]');
 
-    const maxDisplayValue =
-      this.min + (rightValue / 100) * (this.max - this.min);
-
-    // Insert value to span
-    minSpan.textContent = this.formatValue(minDisplayValue.toFixed(0));
-    maxSpan.textContent = this.formatValue(maxDisplayValue.toFixed(0));
+    minSpan.textContent = this.formatValue(leftValue.toFixed(0));
+    maxSpan.textContent = this.formatValue(rightValue.toFixed(0));
   }
 
   destroy() {
