@@ -52,7 +52,6 @@ export default class DoubleSlider {
 
   initialize() {
     this.rect = this.doubleSlider.getBoundingClientRect();
-    this.leftThumbX = this.leftThumb.getBoundingClientRect();
 
     this.leftThumb.addEventListener("pointerdown", () => {
       this.isLeftDragging = true;
