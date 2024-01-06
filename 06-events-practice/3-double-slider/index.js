@@ -14,17 +14,12 @@ export default class DoubleSlider {
     this.isLeftDragging = false;
     this.isRightDragging = false;
 
-    // this.doubleSlider = this.element.querySelector(".range-slider__inner");
-    // this.sliderProgress = this.element.querySelector(".range-slider__progress");
-    // this.leftThumb = this.element.querySelector(".range-slider__thumb-left");
-    // this.rightThumb = this.element.querySelector(".range-slider__thumb-right");
-    // this.initialize();
+    this.doubleSlider = this.element.querySelector(".range-slider__inner");
+    this.sliderProgress = this.element.querySelector(".range-slider__progress");
+    this.leftThumb = this.element.querySelector(".range-slider__thumb-left");
+    this.rightThumb = this.element.querySelector(".range-slider__thumb-right");
 
     document.addEventListener("DOMContentLoaded", () => {
-      this.doubleSlider = document.querySelector(".range-slider__inner");
-      this.sliderProgress = document.querySelector(".range-slider__progress");
-      this.leftThumb = document.querySelector(".range-slider__thumb-left");
-      this.rightThumb = document.querySelector(".range-slider__thumb-right");
       this.initialize();
     });
   }
