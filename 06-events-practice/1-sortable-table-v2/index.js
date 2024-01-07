@@ -13,10 +13,6 @@ export default class SortableTable extends Table {
 
       // Call Table sort() method to actually sort rows
       super.sort(sorted.id, sorted.order);
-
-      // Re-attach header click handler
-      // (in case headers were re-rendered)
-      this.initHeaderListeners();
     };
 
     // Attach header click listener for the first time
