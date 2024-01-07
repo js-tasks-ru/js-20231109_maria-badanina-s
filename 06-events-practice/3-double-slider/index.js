@@ -53,6 +53,8 @@ export default class DoubleSlider {
     `;
   }
 
+  // ------ Utility functions ------- /
+
   // Convert initial values to percetage
   initValueToPercent(value) {
     return ((value - this.min) / (this.max - this.min)) * 100;
@@ -69,6 +71,12 @@ export default class DoubleSlider {
     return (value / this.slider.width) * 100;
   }
 
+  // Convert percentage to px
+  percentToValue(value) {
+    const barWidth = this.slider.width;
+    return (value / barWidth) * (this.max - this.min) + this.min;
+  }
+
   // ------ Main functionality ------- /
   onLeftThumbDrag = () => {
     this.isLeftDragging = true;
@@ -83,6 +91,14 @@ export default class DoubleSlider {
   };
 
   moveThumb = (x, direction) => {
+    this.leftThumbPos =
+      this.leftThumb.getBoundingClientRect().x -
+      this.slider.left +
+      this.leftThumb.offsetWidth;
+
+    this.rightThumbPos =
+      this.rightThumb.getBoundingClientRect().x - this.slider.left;
+
     if (direction === "left") {
       if (x < 0) x = 0;
 
@@ -90,6 +106,8 @@ export default class DoubleSlider {
 
       this.leftThumb.style.left = `${this.pxToPercent(x)}%`;
       this.sliderProgress.style.left = `${this.pxToPercent(x)}%`;
+      this.leftValue = this.percentToValue(x).toFixed(0);
+      this.minSpan.textContent = this.formatValue(this.leftValue);
     }
 
     if (direction === "right") {
@@ -99,6 +117,8 @@ export default class DoubleSlider {
 
       this.rightThumb.style.right = `${100 - this.pxToPercent(x)}%`;
       this.sliderProgress.style.right = `${100 - this.pxToPercent(x)}%`;
+      this.rightValue = this.percentToValue(x).toFixed(0);
+      this.maxSpan.textContent = this.formatValue(this.rightValue);
     }
   };
 
@@ -112,28 +132,18 @@ export default class DoubleSlider {
     if (this.isRightDragging) {
       this.moveThumb(x, "right");
     }
-
-    const barWidth = this.slider.width;
-    this.leftThumbPos =
-      this.leftThumb.getBoundingClientRect().x -
-      this.slider.left +
-      this.leftThumb.offsetWidth;
-
-    this.rightThumbPos =
-      this.rightThumb.getBoundingClientRect().x - this.slider.left;
-
-    const leftValue =
-      (this.leftThumbPos / barWidth) * (this.max - this.min) + this.min;
-
-    const rightValue =
-      (this.rightThumbPos / barWidth) * (this.max - this.min) + this.min;
-
-    this.minSpan.textContent = this.formatValue(leftValue.toFixed(0));
-    this.maxSpan.textContent = this.formatValue(rightValue.toFixed(0));
   };
 
-  onPointerUp = (event) => {
-    //this.dispatchEvent();
+  onPointerUp = () => {
+    const rangeSelect = new CustomEvent("range-select", {
+      detail: {
+        from: Number(this.leftValue) || this.from,
+        to: Number(this.rightValue) || this.to,
+      },
+      bubbles: true,
+    });
+
+    this.element.dispatchEvent(rangeSelect);
     document.removeEventListener("pointermove", this.onPointerMove);
   };
 
