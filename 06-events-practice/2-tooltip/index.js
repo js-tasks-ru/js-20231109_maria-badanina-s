@@ -44,16 +44,17 @@ class Tooltip {
     if (!this.tooltipHtml) return;
 
     this.render(event.x, event.y, this.tooltipHtml);
-
-    event.target.addEventListener("pointermove", (e) => {
+    onPointerMove = (e) => {
       this.updateTooltipPosition(e.x, e.y);
-    });
+    };
+
+    event.target.addEventListener("pointermove", this.onPointerMove);
   };
 
   hideTooltip = () => {
     if (!this.element) return;
 
-    this.element.removeEventListener("pointermove", this.updateTooltipPosition);
+    this.element.removeEventListener("pointermove", this.onPointerMove);
     this.element.remove();
     this.element = null;
   };
