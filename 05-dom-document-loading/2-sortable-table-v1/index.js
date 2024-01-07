@@ -22,24 +22,29 @@ export default class SortableTable {
             fieldValue
           )}
           <div data-element="body" class="sortable-table__body">
-            ${data
-              .map((item) => {
-                const { images, title, quantity, price, sales, id } = item;
-                return this.createItemTemplate(
-                  images?.[0]?.url,
-                  title,
-                  quantity,
-                  price,
-                  sales,
-                  id
-                );
-              })
-              .join("")}
+            ${this.createBodyTemplate(data)}
           </div>
         </div>
       </div>
     `;
   }
+
+  createBodyTemplate(data) {
+    return data
+      .map((item) => {
+        const { images, title, quantity, price, sales, id } = item;
+        return this.createItemTemplate(
+          images?.[0]?.url,
+          title,
+          quantity,
+          price,
+          sales,
+          id
+        );
+      })
+      .join("");
+  }
+
   createItemTemplate(image, title, quantity, price, sales, link) {
     return `
       <a href="/products/${link}" class="sortable-table__row">
@@ -113,16 +118,14 @@ export default class SortableTable {
         ? this.sortedByTitle(this.data, orderValue)
         : this.sortedByNumbers(this.data, orderValue, fieldValue);
 
-    const newTemplate = this.createElement(
-      this.createTemplate(newData, orderValue, fieldValue)
-    );
-    this.update(this.element, newTemplate);
-    this.element = newTemplate;
+    this.data = newData;
+    this.updateBody(this.subElements.body, newData);
   }
 
   // update logic
-  update(oldElement, newElement) {
-    this.parent?.replaceChild(newElement, oldElement);
+  updateBody(bodyElement, newData) {
+    const newBody = this.createBodyTemplate(newData);
+    bodyElement.innerHTML = newBody;
   }
 
   destroy() {
