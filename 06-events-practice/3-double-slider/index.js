@@ -18,10 +18,13 @@ export default class DoubleSlider {
     this.sliderProgress = this.element.querySelector(".range-slider__progress");
     this.leftThumb = this.element.querySelector(".range-slider__thumb-left");
     this.rightThumb = this.element.querySelector(".range-slider__thumb-right");
+    this.minSpan = this.element.querySelector('[data-element="from"]');
+    this.maxSpan = this.element.querySelector('[data-element="to"]');
 
-    document.addEventListener("DOMContentLoaded", () => {
-      this.initialize();
-    });
+    // Add listeners
+    this.leftThumb.addEventListener("pointerdown", this.onLeftThumbDrag);
+    this.rightThumb.addEventListener("pointerdown", this.onRightThumbDrag);
+    document.addEventListener("pointerup", this.onPointerUp);
   }
 
   createElement(template) {
@@ -50,29 +53,6 @@ export default class DoubleSlider {
     `;
   }
 
-  initialize() {
-    this.rect = this.doubleSlider.getBoundingClientRect();
-
-    this.leftThumb.addEventListener("pointerdown", () => {
-      this.isLeftDragging = true;
-    });
-
-    this.rightThumb.addEventListener("pointerdown", () => {
-      this.isRightDragging = true;
-    });
-
-    document.addEventListener("pointerup", () => {
-      this.isLeftDragging = false;
-      this.isRightDragging = false;
-    });
-
-    document.addEventListener("pointermove", (event) => {
-      let x = event.clientX - this.rect.left;
-      this.moveLeftThumb(x);
-      this.moveRightThumb(x);
-    });
-  }
-
   // Convert initial values to percetage
   initValueToPercent(value) {
     return ((value - this.min) / (this.max - this.min)) * 100;
@@ -86,43 +66,61 @@ export default class DoubleSlider {
 
   // Convert pixels to percentage
   pxToPercent(value) {
-    return (value / this.rect.width) * 100;
+    return (value / this.slider.width) * 100;
   }
 
-  // Move functions
-  moveLeftThumb(x) {
-    if (!this.isLeftDragging) return;
+  // ------ Main functionality ------- /
+  onLeftThumbDrag = () => {
+    this.isLeftDragging = true;
+    this.isRightDragging = false;
+    document.addEventListener("pointermove", this.onPointerMove);
+  };
 
-    if (x < 0) x = 0;
-    if (x > this.rightThumbPos) x = this.rightThumbPos;
+  onRightThumbDrag = () => {
+    this.isLeftDragging = false;
+    this.isRightDragging = true;
+    document.addEventListener("pointermove", this.onPointerMove);
+  };
 
-    this.leftThumb.style.left = `${this.pxToPercent(x)}%`;
-    this.sliderProgress.style.left = `${this.pxToPercent(x)}%`;
+  moveThumb = (x, direction) => {
+    if (direction === "left") {
+      if (x < 0) x = 0;
 
-    this.updateValues();
-  }
+      if (x > this.rightThumbPos) x = this.rightThumbPos;
 
-  moveRightThumb(x) {
-    if (!this.isRightDragging) return;
+      this.leftThumb.style.left = `${this.pxToPercent(x)}%`;
+      this.sliderProgress.style.left = `${this.pxToPercent(x)}%`;
+    }
 
-    if (x > this.rect.width) x = this.rect.width;
+    if (direction === "right") {
+      if (x > this.slider.width) x = this.slider.width;
 
-    if (x < this.leftThumbPos) x = this.leftThumbPos;
+      if (x < this.leftThumbPos) x = this.leftThumbPos;
 
-    this.rightThumb.style.right = `${100 - this.pxToPercent(x)}%`;
-    this.sliderProgress.style.right = `${100 - this.pxToPercent(x)}%`;
+      this.rightThumb.style.right = `${100 - this.pxToPercent(x)}%`;
+      this.sliderProgress.style.right = `${100 - this.pxToPercent(x)}%`;
+    }
+  };
 
-    this.updateValues();
-  }
+  onPointerMove = (event) => {
+    this.slider = this.doubleSlider.getBoundingClientRect();
+    let x = event.clientX - this.slider.left;
 
-  updateValues() {
-    const barWidth = this.rect.width;
+    if (this.isLeftDragging) {
+      this.moveThumb(x, "left");
+    }
+    if (this.isRightDragging) {
+      this.moveThumb(x, "right");
+    }
+
+    const barWidth = this.slider.width;
     this.leftThumbPos =
       this.leftThumb.getBoundingClientRect().x -
-      this.rect.left +
+      this.slider.left +
       this.leftThumb.offsetWidth;
+
     this.rightThumbPos =
-      this.rightThumb.getBoundingClientRect().x - this.rect.left;
+      this.rightThumb.getBoundingClientRect().x - this.slider.left;
 
     const leftValue =
       (this.leftThumbPos / barWidth) * (this.max - this.min) + this.min;
@@ -130,16 +128,22 @@ export default class DoubleSlider {
     const rightValue =
       (this.rightThumbPos / barWidth) * (this.max - this.min) + this.min;
 
-    const minSpan = this.element.querySelector('[data-element="from"]');
-    const maxSpan = this.element.querySelector('[data-element="to"]');
+    this.minSpan.textContent = this.formatValue(leftValue.toFixed(0));
+    this.maxSpan.textContent = this.formatValue(rightValue.toFixed(0));
+  };
 
-    minSpan.textContent = this.formatValue(leftValue.toFixed(0));
-    maxSpan.textContent = this.formatValue(rightValue.toFixed(0));
-  }
+  onPointerUp = (event) => {
+    //this.dispatchEvent();
+    document.removeEventListener("pointermove", this.onPointerMove);
+  };
 
   destroy() {
     if (this.element) {
       this.element.remove();
+      this.leftThumb.removeEventListener("pointerdown", this.onLeftThumbDrag);
+      this.rightThumb.removeEventListener("pointerdown", this.onRightThumbDrag);
+      document.removeEventListener("pointermove", this.onPointerMove);
+      document.removeEventListener("pointerup", this.onPointerUp);
     }
   }
 }
