@@ -39,14 +39,15 @@ class Tooltip {
     this.element.style.top = `${y}px`;
   };
 
+  onPointerMove = (e) => {
+    this.updateTooltipPosition(e.x, e.y);
+  };
+
   showTooltip = (event) => {
     this.tooltipHtml = event.target.dataset.tooltip;
     if (!this.tooltipHtml) return;
 
     this.render(event.x, event.y, this.tooltipHtml);
-    onPointerMove = (e) => {
-      this.updateTooltipPosition(e.x, e.y);
-    };
 
     event.target.addEventListener("pointermove", this.onPointerMove);
   };
