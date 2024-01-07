@@ -7,8 +7,7 @@ export default class SortableTable extends Table {
     // Attach header click listener for the first time
     this.initHeaderListeners();
 
-    // On DOM loaded, set initial column sorting
-    document.addEventListener("DOMContentLoaded", () => {
+    this.domContentLoadedListener = () => {
       // Set visual order indicator on current sorted column
       this.setCurrentCell(sorted);
 
@@ -18,7 +17,16 @@ export default class SortableTable extends Table {
       // Re-attach header click handler
       // (in case headers were re-rendered)
       this.initHeaderListeners();
-    });
+    };
+
+    // Attach header click listener for the first time
+    this.initHeaderListeners();
+
+    // On DOM loaded, set initial column sorting
+    document.addEventListener(
+      "DOMContentLoaded",
+      this.domContentLoadedListener
+    );
   }
 
   // Set 'data-order' attribute on currently sorted header
@@ -62,6 +70,10 @@ export default class SortableTable extends Table {
     // Clean up on destroy
     super.destroy();
     this.headerEl.removeEventListener("pointerdown", this.onHeaderClick);
+    document.removeEventListener(
+      "DOMContentLoaded",
+      this.domContentLoadedListener
+    );
   }
 
   get headerEl() {
