@@ -55,13 +55,15 @@ export default class DoubleSlider {
 
   // ------ Utility functions ------- /
 
-  // Convert initial values to percetage
+  // Convert initial values to percentage
   initValueToPercent(value) {
     return ((value - this.min) / (this.max - this.min)) * 100;
   }
+
   initLeftThumbPos(value) {
     return this.initValueToPercent(value);
   }
+
   initRightThumbPos(value) {
     return 100 - this.initValueToPercent(value);
   }
@@ -71,13 +73,14 @@ export default class DoubleSlider {
     return (value / this.slider.width) * 100;
   }
 
-  // Convert percentage to px
+  // Convert percentage to value
   percentToValue(value) {
     const barWidth = this.slider.width;
     return (value / barWidth) * (this.max - this.min) + this.min;
   }
 
   // ------ Main functionality ------- /
+
   onLeftThumbDrag = () => {
     this.isLeftDragging = true;
     this.isRightDragging = false;
