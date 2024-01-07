@@ -4,9 +4,6 @@ export default class SortableTable extends Table {
   constructor(headersConfig, { data = [], sorted = {} } = {}) {
     super(headersConfig, data);
 
-    // Attach header click listener for the first time
-    this.initHeaderListeners();
-
     this.domContentLoadedListener = () => {
       // Set visual order indicator on current sorted column
       this.setCurrentCell(sorted);
@@ -15,7 +12,7 @@ export default class SortableTable extends Table {
       super.sort(sorted.id, sorted.order);
     };
 
-    // Attach header click listener for the first time
+    // Attach header click listener
     this.initHeaderListeners();
 
     // On DOM loaded, set initial column sorting
@@ -51,10 +48,6 @@ export default class SortableTable extends Table {
       // Call Table sort() to actually rearrange rows
       super.sort(field, newOrder);
     }
-
-    // Re-attach header click handler
-    // Needed for it to work after any DOM updates
-    this.initHeaderListeners();
   };
 
   initHeaderListeners() {
