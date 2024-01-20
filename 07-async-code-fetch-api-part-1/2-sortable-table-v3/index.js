@@ -16,16 +16,17 @@ export default class SortableTable extends Table {
     super(headersConfig, data);
     this.url = url;
     this.isSortLocally = isSortLocally;
-
+    this.table = this.element.querySelector(`.sortable-table`);
+    this.sorted = sorted;
     this.render(sorted.id, sorted.order);
     super.sort(sorted.id, sorted.order);
     this.headerEl.removeEventListener("pointerdown", this.onHeaderClick);
     this.headerEl.addEventListener("pointerdown", this.sortOnClick);
+    window.addEventListener("scroll", this.loadDataOnScroll);
   }
 
   async render(id, order) {
-    const table = this.element.querySelector(`.sortable-table`);
-    table.classList.add("sortable-table_loading"); // add progres bar
+    this.table.classList.add("sortable-table_loading"); // add progres bar
 
     const url = `${BACKEND_URL}/${this.url}?_sort=${id}&_order=${order}&_start=0&_end=30`;
     try {
@@ -37,7 +38,7 @@ export default class SortableTable extends Table {
     } catch (err) {
       console.log("Error:", err);
     } finally {
-      table.classList.remove("sortable-table_loading"); //remove progress bar
+      this.table.classList.remove("sortable-table_loading"); //remove progress bar
     }
   }
 
@@ -52,6 +53,8 @@ export default class SortableTable extends Table {
       const newOrder = currentOrder === "asc" ? "desc" : "asc";
       headerCell.setAttribute("data-order", newOrder);
       this.sort(field, newOrder);
+      this.sorted.id = field;
+      this.sorted.order = newOrder;
     }
   };
 
@@ -77,8 +80,34 @@ export default class SortableTable extends Table {
     this.render(fieldValue, orderValue);
   }
 
+  loadDataOnScroll = async () => {
+    if (this.isSortLocally) return;
+
+    const { bottom } = this.table?.getBoundingClientRect();
+
+    if (bottom <= window.innerHeight + 100) {
+      console.log("Load more data...");
+      await this.loadMoreData();
+    }
+  };
+
+  async loadMoreData() {
+    const url = `${BACKEND_URL}/${this.url}?_sort=${this.sorted.id}&_order=${
+      this.sorted.order
+    }&_start=${this.data.length}&_end=${this.data.length + 30}`;
+
+    try {
+      const newData = await fetchJson(url);
+      this.data = [...this.data, ...newData];
+      this.updateBody(this.subElements.body, this.data);
+    } catch (err) {
+      console.log("Error:", err);
+    }
+  }
+
   destroy() {
     super.destroy();
     this.headerEl.removeEventListener("pointerdown", this.sortOnClick);
+    window.removeEventListener("scroll", this.onWindowScroll);
   }
 }
