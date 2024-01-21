@@ -24,6 +24,7 @@ export default class SortableTable {
           <div data-element="body" class="sortable-table__body">
             ${this.createBodyTemplate(data)}
           </div>
+          <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
         </div>
       </div>
     `;
@@ -32,20 +33,21 @@ export default class SortableTable {
   createBodyTemplate(data) {
     return data
       .map((item) => {
-        const { images, title, quantity, price, sales, id } = item;
+        const { images, title, quantity, price, sales, status, id } = item;
         return this.createItemTemplate(
           images?.[0]?.url,
           title,
           quantity,
           price,
           sales,
+          status,
           id
         );
       })
       .join("");
   }
 
-  createItemTemplate(image, title, quantity, price, sales, link) {
+  createItemTemplate(image, title, quantity, price, sales, status, link) {
     return `
       <a href="/products/${link}" class="sortable-table__row">
         ${
@@ -57,6 +59,7 @@ export default class SortableTable {
       ${quantity ? `<div class="sortable-table__cell">${quantity}</div>` : ""}
       ${price ? `<div class="sortable-table__cell">${price}</div>` : ""}
       ${sales ? `<div class="sortable-table__cell">${sales}</div>` : ""}
+      ${!sales ? `<div class="sortable-table__cell">${status || 0}</div>` : ""}
       </a>
     `;
   }
