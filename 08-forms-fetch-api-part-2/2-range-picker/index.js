@@ -8,24 +8,14 @@ export default class RangePicker {
     this.initialYear = new Date(from).getFullYear();
     this.initialMonth = new Date(from).getMonth() + 1;
 
-    this.renderCalendar(this.initialYear, this.initialMonth);
+    this.renderCalendar();
     this.attachEventListeners();
     this.clickCounter = 0;
     this.selectedRange = [];
   }
 
-  renderCalendar(year, month) {
-    this.element = this.createElement(this.createTemplate(year, month));
-    this.rangePickerInput = this.element.querySelector(".rangepicker__input");
-    this.calendarSelector = this.element.querySelector(
-      '[data-element="selector"]'
-    );
-    this.leftControl = this.element.querySelector(
-      ".rangepicker__selector-control-left"
-    );
-    this.rightControl = this.element.querySelector(
-      ".rangepicker__selector-control-right"
-    );
+  renderCalendar() {
+    this.element = this.createElement(this.createTemplate());
   }
 
   createElement(template) {
@@ -34,21 +24,25 @@ export default class RangePicker {
     return element.firstElementChild;
   }
 
-  createTemplate(year, month) {
+  createTemplate() {
     return `
       <div class="rangepicker">
         <div class="rangepicker__input" data-element="input">
           <span data-element="from">${this.inputDateFormat(this.from)}</span> -
           <span data-element="to">${this.inputDateFormat(this.to)}</span>
         </div>
-        <div class="rangepicker__selector" data-element="selector">
-          <div class="rangepicker__selector-arrow"></div>
-          <div class="rangepicker__selector-control-left"></div>
-          <div class="rangepicker__selector-control-right"></div>
-          ${this.createCalendarTemplate(year, month)}
-          ${this.createCalendarTemplate(year, month + 1)}
-        </div>
+        <div class="rangepicker__selector" data-element="selector"></div>
       </div>
+    `;
+  }
+
+  createSelectorTemplate(year, month) {
+    return `
+      <div class="rangepicker__selector-arrow"></div>
+      <div class="rangepicker__selector-control-left"></div>
+      <div class="rangepicker__selector-control-right"></div>
+      ${this.createCalendarTemplate(year, month)}
+      ${this.createCalendarTemplate(year, month + 1)}
     `;
   }
 
@@ -129,17 +123,37 @@ export default class RangePicker {
   }
 
   attachEventListeners() {
+    this.rangePickerInput = this.element.querySelector(".rangepicker__input");
+    this.calendarSelector = this.element.querySelector(
+      '[data-element="selector"]'
+    );
     this.rangePickerInput.addEventListener("click", this.toggleRangePicker);
     this.calendarSelector.addEventListener("click", this.selectDate);
-    this.leftControl.addEventListener("click", this.goPrev);
-    this.rightControl.addEventListener("click", this.goNext);
+    this.calendarSelector.addEventListener("click", this.goPrev);
+    this.calendarSelector.addEventListener("click", this.goNext);
+  }
+
+  removeEventListeners() {
+    this.rangePickerInput.removeEventListener("click", this.toggleRangePicker);
+    this.calendarSelector.removeEventListener("click", this.selectDate);
+    this.calendarSelector.removeEventListener("click", this.goPrev);
+    this.calendarSelector.removeEventListener("click", this.goNext);
   }
 
   toggleRangePicker = () => {
+    this.calendarSelector.innerHTML = this.createSelectorTemplate(
+      this.initialYear,
+      this.initialMonth
+    );
     this.element.classList.toggle("rangepicker_open");
   };
 
-  goNext = () => {
+  goNext = (event) => {
+    const rightControl = event.target.closest(
+      ".rangepicker__selector-control-right"
+    );
+    if (event.target != rightControl) return;
+
     this.initialMonth++;
     if (this.initialMonth > 12) {
       this.initialMonth = 1;
@@ -148,7 +162,11 @@ export default class RangePicker {
     this.updateDateButtons(this.initialYear, this.initialMonth);
   };
 
-  goPrev = () => {
+  goPrev = (event) => {
+    const leftControl = event.target.closest(
+      ".rangepicker__selector-control-left"
+    );
+    if (event.target != leftControl) return;
     this.initialMonth--;
     if (this.initialMonth < 1) {
       this.initialMonth = 12;
@@ -256,9 +274,6 @@ export default class RangePicker {
 
   remove = () => {
     this.element.remove();
-    this.rangePickerInput.removeEventListener("click", this.toggleRangePicker);
-    this.calendarSelector.removeEventListener("click", this.selectDate);
-    this.leftControl.removeEventListener("click", this.goPrev);
-    this.rightControl.removeEventListener("click", this.goNext);
+    this.removeEventListeners();
   };
 }
