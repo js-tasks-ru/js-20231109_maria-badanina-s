@@ -16,6 +16,16 @@ export default class RangePicker {
 
   renderCalendar(year, month) {
     this.element = this.createElement(this.createTemplate(year, month));
+    this.rangePickerInput = this.element.querySelector(".rangepicker__input");
+    this.calendarSelector = this.element.querySelector(
+      '[data-element="selector"]'
+    );
+    this.leftControl = this.element.querySelector(
+      ".rangepicker__selector-control-left"
+    );
+    this.rightControl = this.element.querySelector(
+      ".rangepicker__selector-control-right"
+    );
   }
 
   createElement(template) {
@@ -119,28 +129,10 @@ export default class RangePicker {
   }
 
   attachEventListeners() {
-    const rangePickerInput = this.element.querySelector(".rangepicker__input");
-    const calendarSelector = this.element.querySelector(
-      '[data-element="selector"]'
-    );
-    const leftControl = this.element.querySelector(
-      ".rangepicker__selector-control-left"
-    );
-    const rightControl = this.element.querySelector(
-      ".rangepicker__selector-control-right"
-    );
-
-    rangePickerInput.addEventListener("click", this.toggleRangePicker);
-
-    calendarSelector.addEventListener("click", this.selectDate);
-
-    if (leftControl) {
-      leftControl.addEventListener("click", this.goPrev);
-    }
-
-    if (rightControl) {
-      rightControl.addEventListener("click", this.goNext);
-    }
+    this.rangePickerInput.addEventListener("click", this.toggleRangePicker);
+    this.calendarSelector.addEventListener("click", this.selectDate);
+    this.leftControl.addEventListener("click", this.goPrev);
+    this.rightControl.addEventListener("click", this.goNext);
   }
 
   toggleRangePicker = () => {
@@ -182,6 +174,11 @@ export default class RangePicker {
         this.cleanSelection(buttonElement);
         break;
       case 1:
+        if (newDate > this.selectedRange[0]) {
+          this.selectedRange.push(newDate);
+        } else {
+          this.selectedRange.unshift(newDate);
+        }
         this.selectedRange.push(newDate);
         this.clickCounter = 0;
         this.setSelection(buttonElement, this.selectedRange);
@@ -259,9 +256,9 @@ export default class RangePicker {
 
   remove = () => {
     this.element.remove();
-    rangePickerInput.removeEventListener("click", this.toggleRangePicker);
-    calendarSelector.removeEventListener("click", this.selectDate);
-    leftControl.removeEventListener("click", this.goPrev);
-    rightControl.removeEventListener("click", this.goNext);
+    this.rangePickerInput.removeEventListener("click", this.toggleRangePicker);
+    this.calendarSelector.removeEventListener("click", this.selectDate);
+    this.leftControl.removeEventListener("click", this.goPrev);
+    this.rightControl.removeEventListener("click", this.goNext);
   };
 }
