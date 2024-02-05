@@ -30,6 +30,7 @@ body {
   position: relative;
   padding: 0;
   margin: 12px 0;
+  border: 1px solid red;
 }
 
 .sortable-list__item {
@@ -83,7 +84,7 @@ body {
   flex-direction: row;
 }
 
-.sortable-list__item-nav > a {
+.sortable-list__item-nav>a {
   font-size: 16px;
   line-height: 24px;
   color: var(--blue);
@@ -92,7 +93,7 @@ body {
   border-left: 1px solid var(--grey-light);
 }
 
-.sortable-list__item-nav > a:first-child {
+.sortable-list__item-nav>a:first-child {
   border-left: none;
 }
 
