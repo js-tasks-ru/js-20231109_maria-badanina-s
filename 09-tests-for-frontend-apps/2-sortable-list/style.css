@@ -30,7 +30,6 @@ body {
   position: relative;
   padding: 0;
   margin: 12px 0;
-  border: 1px solid red;
 }
 
 .sortable-list__item {

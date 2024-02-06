@@ -60,12 +60,9 @@ export default class SortableList {
       item.style.visibility = "visible";
 
       if (this.currentDroppable != droppableBelow) {
-        if (this.currentDroppable) {
-          leaveDroppable(this.currentDroppable);
-        }
         this.currentDroppable = droppableBelow;
         if (this.currentDroppable) {
-          enterDroppable(this.currentDroppable);
+          enterDroppable(this.currentDroppable, placeholder);
         }
       }
     };
@@ -74,6 +71,7 @@ export default class SortableList {
 
     item.onmouseup = function () {
       document.removeEventListener("pointermove", onMouseMove);
+      leaveDroppable(item, placeholder);
       item.onmouseup = null;
     };
 
@@ -81,14 +79,42 @@ export default class SortableList {
       return false;
     };
 
-    function enterDroppable(elem) {
-      //elem.classList.add("sortable-list__placeholder");
+    function enterDroppable(element1, element2) {
       /// here I need to swap elem with placeholder
+      if (element1?.parentNode && element2?.parentNode) {
+        // Create a temporary storage for element1
+        let temp = document.createElement("div");
+
+        // Step in between to hold the place of element1
+        element1.parentNode.insertBefore(temp, element1);
+
+        // Replace element1 with element2
+        element2.parentNode.replaceChild(element1, element2);
+
+        // Move element2 to the original position of element1
+        temp.parentNode.replaceChild(element2, temp);
+      }
     }
 
-    function leaveDroppable(elem) {
-      //elem.classList.remove("sortable-list__placeholder");
-      // here I need to swap elem with placeholder too!!!
+    function leaveDroppable(item, placeholder) {
+      /// here I need to swap elem with placeholder
+      if (item?.parentNode && placeholder?.parentNode) {
+        // Create a temporary storage for item
+        let temp = document.createElement("div");
+
+        // Step in between to hold the place of item
+        item.parentNode.insertBefore(temp, item);
+
+        // Replace item with placeholder
+        placeholder.parentNode.replaceChild(item, placeholder);
+
+        // Move placeholder to the original position of item
+        temp.parentNode.replaceChild(placeholder, temp);
+        placeholder.remove();
+        item.style.position = "static";
+        item.style.zIndex = 1;
+        item.style.width = "auto";
+      }
     }
   }
 
@@ -116,5 +142,6 @@ export default class SortableList {
 
   remove = () => {
     this.element.remove();
+    this.element.removeEventListener("pointerdown", this.onMouseDown);
   };
 }
