@@ -1,5 +1,6 @@
 export default class SortableList {
   constructor({ items }) {
+    this.items = items;
     this.element = this.createListElement("ul");
 
     items.forEach((item) => {
@@ -7,7 +8,7 @@ export default class SortableList {
       this.element.appendChild(listItem);
     });
 
-    this.element.addEventListener("mousedown", this.onMouseDown);
+    this.element.addEventListener("pointerdown", this.onMouseDown);
 
     this.currentDroppable = null;
   }
@@ -20,12 +21,25 @@ export default class SortableList {
     let shiftX = event.clientX - item.getBoundingClientRect().left;
     let shiftY = event.clientY - item.getBoundingClientRect().top;
 
+    // put placeholder in the place of the grabbed element
+    const placeholder = document.createElement("li");
+    placeholder.classList.add(
+      "sortable-list__placeholder",
+      "sortable-list__item"
+    );
+    // Get the index of the original element within its parent
+    const index = Array.from(this.children).indexOf(item);
+    // Insert the placeholder at the same index as the original element
+    this.insertBefore(placeholder, this.children[index + 1]);
+
+    //elem.classList.add("sortable-list__placeholder");
+
     item.style.position = "absolute";
     item.style.zIndex = 1000;
     item.style.width = "100%";
     //document.body.append(item);
 
-    moveAt(event.pageX, event.pageY);
+    //moveAt(event.pageX, event.pageY);
 
     function moveAt(pageX, pageY) {
       item.style.left = pageX - shiftX + "px";
@@ -38,16 +52,14 @@ export default class SortableList {
 
       item.style.visibility = "hidden";
       let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-      console.log("elemBelow--->", elemBelow);
 
       if (!elemBelow) return;
 
       let droppableBelow = elemBelow.closest(".sortable-list__item");
-      console.log("droppableBelow--->", droppableBelow);
 
       item.style.visibility = "visible";
 
-      if (this.currentDroppable != droppableBelow && item != droppableBelow) {
+      if (this.currentDroppable != droppableBelow) {
         if (this.currentDroppable) {
           leaveDroppable(this.currentDroppable);
         }
@@ -58,10 +70,10 @@ export default class SortableList {
       }
     };
 
-    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("pointermove", onMouseMove);
 
     item.onmouseup = function () {
-      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("pointermove", onMouseMove);
       item.onmouseup = null;
     };
 
@@ -70,11 +82,13 @@ export default class SortableList {
     };
 
     function enterDroppable(elem) {
-      elem.style.background = "pink";
+      //elem.classList.add("sortable-list__placeholder");
+      /// here I need to swap elem with placeholder
     }
 
     function leaveDroppable(elem) {
-      elem.style.background = "";
+      //elem.classList.remove("sortable-list__placeholder");
+      // here I need to swap elem with placeholder too!!!
     }
   }
 
@@ -89,7 +103,7 @@ export default class SortableList {
     const deleteButton = item.querySelector("[data-delete-handle]");
     const dragButton = item.querySelector("[data-grab-handle]");
 
-    deleteButton.addEventListener("click", () => {
+    deleteButton.addEventListener("pointerdown", () => {
       item.remove();
     });
 
