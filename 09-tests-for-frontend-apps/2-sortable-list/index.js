@@ -17,14 +17,13 @@ export default class SortableList {
     const dragButton = event.target.closest("[data-grab-handle]");
     if (event.target != dragButton) return;
 
-    item.classList.remove("droppable");
-
     let shiftX = event.clientX - item.getBoundingClientRect().left;
     let shiftY = event.clientY - item.getBoundingClientRect().top;
 
     item.style.position = "absolute";
     item.style.zIndex = 1000;
-    document.body.append(item);
+    item.style.width = "100%";
+    //document.body.append(item);
 
     moveAt(event.pageX, event.pageY);
 
@@ -37,17 +36,16 @@ export default class SortableList {
     const onMouseMove = (event) => {
       moveAt(event.pageX, event.pageY);
 
-      item.hidden = true;
+      item.style.visibility = "hidden";
       let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
       console.log("elemBelow--->", elemBelow);
-      item.hidden = false;
 
       if (!elemBelow) return;
 
-      console.log("this--->", this);
-
-      let droppableBelow = item.closest(".droppable");
+      let droppableBelow = elemBelow.closest(".sortable-list__item");
       console.log("droppableBelow--->", droppableBelow);
+
+      item.style.visibility = "visible";
 
       if (this.currentDroppable != droppableBelow && item != droppableBelow) {
         if (this.currentDroppable) {
@@ -65,7 +63,6 @@ export default class SortableList {
     item.onmouseup = function () {
       document.removeEventListener("mousemove", onMouseMove);
       item.onmouseup = null;
-      item.classList.add("droppable");
     };
 
     item.ondragstart = function () {
@@ -89,7 +86,6 @@ export default class SortableList {
 
   createListItemElement(item) {
     item.classList.add("sortable-list__item");
-    item.classList.add("droppable");
     const deleteButton = item.querySelector("[data-delete-handle]");
     const dragButton = item.querySelector("[data-grab-handle]");
 
@@ -99,4 +95,12 @@ export default class SortableList {
 
     return item;
   }
+
+  destroy = () => {
+    this.remove();
+  };
+
+  remove = () => {
+    this.element.remove();
+  };
 }
