@@ -1,22 +1,46 @@
 export default class SortableList {
-  constructor({ items }) {
-    this.items = items;
+  constructor({ items = {} }) {
     this.element = this.createListElement("ul");
-
-    items.forEach((item) => {
-      const listItem = this.createListItemElement(item);
-      this.element.appendChild(listItem);
-    });
-
-    this.element.addEventListener("pointerdown", this.onMouseDown);
-
-    this.currentDroppable = null;
+    this.setItems(items);
+    this.attachEventListeners();
   }
 
-  onMouseDown(event) {
+  createListElement(tagName) {
+    const element = document.createElement(tagName);
+    element.classList.add("sortable-list");
+    return element;
+  }
+
+  setItems(items) {
+    this.element.innerHTML = items
+      .map((item) => {
+        item.classList.add("sortable-list__item");
+        return item.outerHTML;
+      })
+      .join("");
+  }
+
+  attachEventListeners() {
+    this.element.addEventListener("pointerdown", this.onElementDelete);
+    this.element.addEventListener("pointerdown", this.onElementDrag);
+  }
+
+  removeEventListeners() {
+    this.element.removeEventListener("pointerdown", this.onElementDelete);
+    this.element.removeEventListener("pointerdown", this.onElementDrag);
+  }
+
+  onElementDelete(event) {
+    const item = event.target.closest(".sortable-list__item");
+    const deleteButton = event.target.closest("[data-delete-handle]");
+    if (event.target != deleteButton) return;
+    item.remove();
+  }
+
+  onElementDrag(event) {
     const item = event.target.closest(".sortable-list__item");
     const dragButton = event.target.closest("[data-grab-handle]");
-    //item.style.border = "1px solid red";
+
     if (event.target != dragButton) return;
 
     let shiftX = event.clientX - item.getBoundingClientRect().left;
@@ -116,30 +140,12 @@ export default class SortableList {
     }
   }
 
-  createListElement(tagName) {
-    const element = document.createElement(tagName);
-    element.classList.add("sortable-list");
-    return element;
-  }
-
-  createListItemElement(item) {
-    item.classList.add("sortable-list__item");
-    const deleteButton = item.querySelector("[data-delete-handle]");
-    const dragButton = item.querySelector("[data-grab-handle]");
-
-    deleteButton.addEventListener("pointerdown", () => {
-      item.remove();
-    });
-
-    return item;
-  }
-
   destroy = () => {
     this.remove();
   };
 
   remove = () => {
     this.element.remove();
-    this.element.removeEventListener("pointerdown", this.onMouseDown);
+    this.removeEventListeners();
   };
 }
