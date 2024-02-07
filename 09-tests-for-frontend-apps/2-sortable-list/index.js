@@ -5,12 +5,14 @@ export default class SortableList {
     this.attachEventListeners();
   }
 
+  // Create the main list element and add a class
   createListElement(tagName) {
     const element = document.createElement(tagName);
     element.classList.add("sortable-list");
     return element;
   }
 
+  // Set items in the list by adding them to the innerHTML
   setItems(items) {
     this.element.innerHTML = items
       .map((item) => {
@@ -20,16 +22,19 @@ export default class SortableList {
       .join("");
   }
 
+  // Attach event listeners for delete and drag actions
   attachEventListeners() {
     this.element.addEventListener("pointerdown", this.onElementDelete);
     this.element.addEventListener("pointerdown", this.onElementDrag);
   }
 
+  // Remove event listeners to avoid memory leaks
   removeEventListeners() {
     this.element.removeEventListener("pointerdown", this.onElementDelete);
     this.element.removeEventListener("pointerdown", this.onElementDrag);
   }
 
+  // Handle deletion of a sortable-list__item when the delete button is clicked
   onElementDelete(event) {
     const item = event.target.closest(".sortable-list__item");
     const deleteButton = event.target.closest("[data-delete-handle]");
@@ -37,6 +42,7 @@ export default class SortableList {
     item.remove();
   }
 
+  // Handle the dragging of a sortable-list__item
   onElementDrag = (event) => {
     const item = event.target.closest(".sortable-list__item");
     const dragButton = event.target.closest("[data-grab-handle]");
@@ -48,7 +54,6 @@ export default class SortableList {
 
     const placeholder = this.createPlaceholder(item);
     this.insertPlaceholder(item, placeholder);
-
     this.setupDragStyles(item);
 
     const onMouseMove = (event) => {
@@ -63,6 +68,7 @@ export default class SortableList {
     );
   };
 
+  // Create a placeholder element for the dragged item
   createPlaceholder() {
     const placeholder = document.createElement("li");
     placeholder.classList.add(
@@ -72,22 +78,26 @@ export default class SortableList {
     return placeholder;
   }
 
+  // Insert the placeholder element at the appropriate position
   insertPlaceholder(item, placeholder) {
     const index = Array.from(this.element.children).indexOf(item);
     this.element.insertBefore(placeholder, this.element.children[index + 1]);
   }
 
+  // Set up styles for the dragged item during the drag operation
   setupDragStyles(item) {
     item.style.position = "fixed";
     item.style.zIndex = 1000;
     item.style.width = "100%";
   }
 
+  // Move the dragged item based on mouse movement
   moveItem(item, shiftX, shiftY, event) {
     item.style.left = event.pageX - shiftX + "px";
     item.style.top = event.pageY - shiftY + "px";
   }
 
+  // Handle the droppable area and update the placeholder accordingly
   handleDroppable(item, placeholder, event) {
     item.style.visibility = "hidden";
     const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
@@ -103,12 +113,14 @@ export default class SortableList {
     }
   }
 
+  // Enter a droppable area and swap elements
   enterDroppable(element1, element2) {
     if (element1?.parentNode && element2?.parentNode) {
       this.swapElements(element1, element2);
     }
   }
 
+  // Swap positions of two elements
   swapElements(element1, element2) {
     const temp = document.createElement("div");
 
@@ -117,6 +129,7 @@ export default class SortableList {
     temp.parentNode.replaceChild(element2, temp);
   }
 
+  // Handle mouse up event and clean up after dragging
   handleMouseUp(item, placeholder, onMouseMove) {
     document.removeEventListener("pointermove", onMouseMove);
     item.removeEventListener("dragstart", this.dragStartHandler);
@@ -126,6 +139,7 @@ export default class SortableList {
     );
   }
 
+  // Leave droppable area and reset styles
   leaveDroppable(item, placeholder) {
     if (item?.parentNode && placeholder?.parentNode) {
       const temp = document.createElement("div");
@@ -139,16 +153,19 @@ export default class SortableList {
     }
   }
 
+  // Reset styles for the dragged item
   resetDragStyles(item) {
     item.style.position = "static";
     item.style.zIndex = 1;
     item.style.width = "auto";
   }
 
+  // Destroy the SortableList instance by removing the element and event listeners
   destroy = () => {
     this.remove();
   };
 
+  // Remove the SortableList element and event listeners
   remove = () => {
     this.element.remove();
     this.removeEventListeners();
