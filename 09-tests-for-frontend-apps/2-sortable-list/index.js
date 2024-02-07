@@ -24,14 +24,14 @@ export default class SortableList {
 
   // Attach event listeners for delete and drag actions
   attachEventListeners() {
-    this.element.addEventListener("pointerdown", this.onElementDelete);
-    this.element.addEventListener("pointerdown", this.onElementDrag);
+    document.addEventListener("pointerdown", this.onElementDelete);
+    document.addEventListener("pointerdown", this.onElementDrag);
   }
 
   // Remove event listeners to avoid memory leaks
-  removeEventListeners() {
-    this.element.removeEventListener("pointerdown", this.onElementDelete);
-    this.element.removeEventListener("pointerdown", this.onElementDrag);
+  detachEventListeners() {
+    document.removeEventListener("pointerdown", this.onElementDelete);
+    document.removeEventListener("pointerdown", this.onElementDrag);
   }
 
   // Handle deletion of a sortable-list__item when the delete button is clicked
@@ -63,10 +63,20 @@ export default class SortableList {
 
     document.addEventListener("pointermove", onMouseMove);
 
-    item.addEventListener("mouseup", () =>
+    item.addEventListener("pointerup", () =>
       this.handleMouseUp(item, placeholder, onMouseMove)
     );
   };
+
+  // Handle mouse up event and clean up after dragging
+  handleMouseUp(item, placeholder, onMouseMove) {
+    document.removeEventListener("pointermove", onMouseMove);
+    item.removeEventListener("dragstart", this.dragStartHandler);
+    this.leaveDroppable(item, placeholder);
+    item.removeEventListener("pointerup", () =>
+      this.handleMouseUp(item, placeholder, onMouseMove)
+    );
+  }
 
   // Create a placeholder element for the dragged item
   createPlaceholder() {
@@ -129,16 +139,6 @@ export default class SortableList {
     temp.parentNode.replaceChild(element2, temp);
   }
 
-  // Handle mouse up event and clean up after dragging
-  handleMouseUp(item, placeholder, onMouseMove) {
-    document.removeEventListener("pointermove", onMouseMove);
-    item.removeEventListener("dragstart", this.dragStartHandler);
-    this.leaveDroppable(item, placeholder);
-    item.removeEventListener("mouseup", () =>
-      this.handleMouseUp(item, placeholder, onMouseMove)
-    );
-  }
-
   // Leave droppable area and reset styles
   leaveDroppable(item, placeholder) {
     if (item?.parentNode && placeholder?.parentNode) {
@@ -168,6 +168,6 @@ export default class SortableList {
   // Remove the SortableList element and event listeners
   remove = () => {
     this.element.remove();
-    this.removeEventListeners();
+    this.detachEventListeners();
   };
 }
