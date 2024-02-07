@@ -57,8 +57,6 @@ export default class SortableList {
     // Insert the placeholder at the same index as the original element
     this.insertBefore(placeholder, this.children[index + 1]);
 
-    //elem.classList.add("sortable-list__placeholder");
-
     item.style.position = "fixed";
     item.style.zIndex = 1000;
     item.style.width = "100%";
@@ -90,15 +88,21 @@ export default class SortableList {
 
     document.addEventListener("pointermove", onMouseMove);
 
-    item.onmouseup = function () {
-      document.removeEventListener("pointermove", onMouseMove);
-      leaveDroppable(item, placeholder);
-      item.onmouseup = null;
-    };
+    item.addEventListener("mouseup", onMouseUp);
 
-    item.ondragstart = function () {
-      return false;
-    };
+    function onMouseUp() {
+      document.removeEventListener("pointermove", onMouseMove);
+      item.removeEventListener("dragstart", dragStartHandler);
+      leaveDroppable(item, placeholder);
+
+      // Remove the event listener to avoid potential memory leaks
+      item.removeEventListener("mouseup", onMouseUp);
+    }
+
+    item.addEventListener("dragstart", dragStartHandler);
+    function dragStartHandler(event) {
+      event.preventDefault();
+    }
 
     function enterDroppable(element1, element2) {
       /// here I need to swap elem with placeholder
