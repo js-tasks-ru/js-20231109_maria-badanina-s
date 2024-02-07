@@ -16,6 +16,7 @@ export default class SortableList {
   onMouseDown(event) {
     const item = event.target.closest(".sortable-list__item");
     const dragButton = event.target.closest("[data-grab-handle]");
+    //item.style.border = "1px solid red";
     if (event.target != dragButton) return;
 
     let shiftX = event.clientX - item.getBoundingClientRect().left;
@@ -34,18 +35,14 @@ export default class SortableList {
 
     //elem.classList.add("sortable-list__placeholder");
 
-    item.style.position = "absolute";
+    item.style.position = "fixed";
     item.style.zIndex = 1000;
     item.style.width = "100%";
-    //document.body.append(item);
-
-    //moveAt(event.pageX, event.pageY);
 
     function moveAt(pageX, pageY) {
       item.style.left = pageX - shiftX + "px";
       item.style.top = pageY - shiftY + "px";
     }
-    // let currentDroppable = this.currentDroppable;
 
     const onMouseMove = (event) => {
       moveAt(event.pageX, event.pageY);
@@ -111,6 +108,7 @@ export default class SortableList {
         // Move placeholder to the original position of item
         temp.parentNode.replaceChild(placeholder, temp);
         placeholder.remove();
+
         item.style.position = "static";
         item.style.zIndex = 1;
         item.style.width = "auto";
