@@ -56,26 +56,28 @@ export default class SortableList {
     this.insertPlaceholder(item, placeholder);
     this.setupDragStyles(item);
 
+    item.draggable = true;
+    item.addEventListener("dragstart", this.onDragStart);
+
+    // Handle mouse move event
     const onMouseMove = (event) => {
       this.moveItem(item, shiftX, shiftY, event);
       this.handleDroppable(item, placeholder, event);
     };
+    // Handle mouse up event and clean up after dragging
+    const handleMouseUp = () => {
+      this.leaveDroppable(item, placeholder);
+      item.removeEventListener("dragstart", this.onDragStart);
+      document.removeEventListener("pointermove", onMouseMove);
+      document.removeEventListener("pointerup", handleMouseUp);
+    };
 
     document.addEventListener("pointermove", onMouseMove);
-
-    item.addEventListener("pointerup", () =>
-      this.handleMouseUp(item, placeholder, onMouseMove)
-    );
+    document.addEventListener("pointerup", handleMouseUp);
   };
 
-  // Handle mouse up event and clean up after dragging
-  handleMouseUp(item, placeholder, onMouseMove) {
-    document.removeEventListener("pointermove", onMouseMove);
-    item.removeEventListener("dragstart", this.dragStartHandler);
-    this.leaveDroppable(item, placeholder);
-    item.removeEventListener("pointerup", () =>
-      this.handleMouseUp(item, placeholder, onMouseMove)
-    );
+  onDragStart(event) {
+    event.preventDefault();
   }
 
   // Create a placeholder element for the dragged item
@@ -143,7 +145,6 @@ export default class SortableList {
   leaveDroppable(item, placeholder) {
     if (item?.parentNode && placeholder?.parentNode) {
       const temp = document.createElement("div");
-
       item.parentNode.insertBefore(temp, item);
       placeholder.parentNode.replaceChild(item, placeholder);
       temp.parentNode.replaceChild(placeholder, temp);
