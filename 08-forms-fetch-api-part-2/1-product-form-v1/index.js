@@ -122,14 +122,30 @@ export default class ProductForm {
       imageListContainer,
     } = this.subElements;
 
-    // Populate the image container with the new images
-    data.images.forEach((image) => {
-      const imageItem = document.createElement("li");
-      imageItem.classList.add(
-        "products-edit__imagelist-item",
-        "sortable-list__item"
-      );
-      imageItem.innerHTML = `
+    title.value = data.title;
+    description.value = data.description;
+    quantity.value = data.quantity;
+    subcategory.value = data.subcategory;
+    status.value = data.status;
+    price.value = data.price;
+    discount.value = data.discount;
+    imageListContainer.append(...this.createImages(data));
+  }
+
+  createImages(data) {
+    return data.images.map((image) => {
+      return this.createImageItemTemplate(image);
+    });
+  }
+
+  createImageItemTemplate(image) {
+    const imageItem = document.createElement("li");
+    imageItem.classList.add(
+      "products-edit__imagelist-item",
+      "sortable-list__item"
+    );
+    imageItem.classList.add("this");
+    imageItem.innerHTML = `
       <input type="hidden" name="url" value="${escapeHtml(image.url)}">
       <input type="hidden" name="source" value="${escapeHtml(image.source)}">
       <span>
@@ -143,18 +159,7 @@ export default class ProductForm {
         <img src="icon-trash.svg" data-delete-handle="" alt="delete">
       </button>
     `;
-
-      // Append the image item to the container
-      imageListContainer.appendChild(imageItem);
-    });
-
-    title.value = data.title;
-    description.value = data.description;
-    quantity.value = data.quantity;
-    subcategory.value = data.subcategory;
-    status.value = data.status;
-    price.value = data.price;
-    discount.value = data.discount;
+    return imageItem;
   }
 
   createCategoryTemplate(data, selectedValue) {

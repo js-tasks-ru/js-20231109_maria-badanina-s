@@ -100,13 +100,12 @@ export default class SortableList {
   setupDragStyles(item) {
     item.style.position = "fixed";
     item.style.zIndex = 1000;
-    item.style.width = "100%";
   }
 
   // Move the dragged item based on mouse movement
   moveItem(item, shiftX, shiftY, event) {
-    item.style.left = event.pageX - shiftX + "px";
-    item.style.top = event.pageY - shiftY + "px";
+    item.style.left = event.clientX - shiftX + "px";
+    item.style.top = event.clientY - shiftY + "px";
   }
 
   // Handle the droppable area and update the placeholder accordingly
@@ -158,7 +157,6 @@ export default class SortableList {
   resetDragStyles(item) {
     item.style.position = "static";
     item.style.zIndex = 1;
-    item.style.width = "auto";
   }
 
   // Destroy the SortableList instance by removing the element and event listeners
