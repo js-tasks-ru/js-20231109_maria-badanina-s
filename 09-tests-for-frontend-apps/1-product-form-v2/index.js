@@ -17,7 +17,15 @@ export default class ProductForm extends ProductForm1 {
     const productUrl = `${BACKEND_URL}/api/rest/products?id=${this.productId}`;
     try {
       const productData = await fetchJson(productUrl);
-      new SortableList({ items: super.createImages(productData[0]) });
+      // Create and append the SortableList instance to the correct container
+      const sortableListContainer = this.element.querySelector(
+        '[data-element="imageListContainer"]'
+      );
+      sortableListContainer.innerHTML = "";
+      const sortableList = new SortableList({
+        items: this.createImages(productData[0]),
+      });
+      sortableListContainer.appendChild(sortableList.element);
     } catch (err) {
       console.log("Error:", err);
     }
