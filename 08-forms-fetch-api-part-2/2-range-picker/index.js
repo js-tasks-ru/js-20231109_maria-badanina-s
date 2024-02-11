@@ -127,20 +127,20 @@ export default class RangePicker {
     this.calendarSelector = this.element.querySelector(
       '[data-element="selector"]'
     );
-    this.rangePickerInput.addEventListener("click", this.toggleRangePicker);
-    this.calendarSelector.addEventListener("click", this.selectDate);
-    this.calendarSelector.addEventListener("click", this.goPrev);
-    this.calendarSelector.addEventListener("click", this.goNext);
+    this.rangePickerInput.addEventListener("click", this.handleRangePickerClick);
+    this.calendarSelector.addEventListener("click", this.handleDateSelectorClick);
+    this.calendarSelector.addEventListener("click", this.handleLeftControlClick);
+    this.calendarSelector.addEventListener("click", this.handleRightControlClick);
   }
 
   removeEventListeners() {
-    this.rangePickerInput.removeEventListener("click", this.toggleRangePicker);
-    this.calendarSelector.removeEventListener("click", this.selectDate);
-    this.calendarSelector.removeEventListener("click", this.goPrev);
-    this.calendarSelector.removeEventListener("click", this.goNext);
+    this.rangePickerInput.removeEventListener("click", this.handleRangePickerClick);
+    this.calendarSelector.removeEventListener("click", this.handleDateSelectorClick);
+    this.calendarSelector.removeEventListener("click", this.handleLeftControlClick);
+    this.calendarSelector.removeEventListener("click", this.handleRightControlClick);
   }
 
-  toggleRangePicker = () => {
+  handleRangePickerClick = () => {
     this.calendarSelector.innerHTML = this.createSelectorTemplate(
       this.initialYear,
       this.initialMonth
@@ -148,7 +148,7 @@ export default class RangePicker {
     this.element.classList.toggle("rangepicker_open");
   };
 
-  goNext = (event) => {
+  handleRightControlClick = (event) => {
     const rightControl = event.target.closest(
       ".rangepicker__selector-control-right"
     );
@@ -162,7 +162,7 @@ export default class RangePicker {
     this.updateDateButtons(this.initialYear, this.initialMonth);
   };
 
-  goPrev = (event) => {
+  handleLeftControlClick = (event) => {
     const leftControl = event.target.closest(
       ".rangepicker__selector-control-left"
     );
@@ -175,7 +175,7 @@ export default class RangePicker {
     this.updateDateButtons(this.initialYear, this.initialMonth);
   };
 
-  selectDate = (event) => {
+  handleDateSelectorClick = (event) => {
     const buttonElement = event.target.closest(".rangepicker__cell");
     if (event.target != buttonElement) return;
 
