@@ -109,7 +109,45 @@ export default class Page {
       rangePicker: rangePickerEl,
     };
 
+    this.element.addEventListener("date-select", (event) => {
+      const selectedDate = event.detail;
+      this.updateElements(selectedDate.from, selectedDate.to);
+    });
+
     return this.element;
+  }
+
+  updateElements(from, to) {
+    // Update ColumnCharts
+    const ordersChart = this.subElements.ordersChart;
+    const salesChart = this.subElements.salesChart;
+    const customersChart = this.subElements.customersChart;
+
+    // Clear existing content
+    ordersChart.innerHTML = "";
+    salesChart.innerHTML = "";
+    customersChart.innerHTML = "";
+
+    const newOrdersChart = new ColumnChart({
+      url: "api/dashboard/orders",
+      range: { from, to },
+      label: "orders",
+    });
+    const newSalesChart = new ColumnChart({
+      url: "api/dashboard/sales",
+      range: { from, to },
+      label: "sales",
+      formatHeading: (data) => `$${data}`,
+    });
+    const newCustomersChart = new ColumnChart({
+      url: "api/dashboard/customers",
+      range: { from, to },
+      label: "customers",
+    });
+
+    ordersChart.appendChild(newOrdersChart.element);
+    salesChart.appendChild(newSalesChart.element);
+    customersChart.appendChild(newCustomersChart.element);
   }
 
   destroy = () => {
