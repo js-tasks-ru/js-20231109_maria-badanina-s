@@ -11,7 +11,7 @@ describe("routes-browser-history-api/dashboard-page", () => {
   });
 
   afterEach(() => {
-    // dashboardPage.destroy();
+    dashboardPage.destroy();
     dashboardPage = null;
   });
 
