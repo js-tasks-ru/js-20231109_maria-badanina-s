@@ -182,20 +182,20 @@ export default class ProductForm {
   }
 
   async save() {
+    const productUpdatedEvent = new CustomEvent("product-updated", {
+      bubbles: true,
+    });
+
+    const productSavedEvent = new CustomEvent("product-saved", {
+      bubbles: true,
+    });
+
     if (this.productId) {
-      this.element.dispatchEvent(this.productUpdated);
+      this.element.dispatchEvent(productUpdatedEvent);
     } else {
-      this.element.dispatchEvent(this.productSaved);
+      this.element.dispatchEvent(productSavedEvent);
     }
   }
-
-  productUpdated = new CustomEvent("product-updated", {
-    bubbles: true,
-  });
-
-  productSaved = new CustomEvent("product-saved", {
-    bubbles: true,
-  });
 
   destroy = () => {
     this.remove();
