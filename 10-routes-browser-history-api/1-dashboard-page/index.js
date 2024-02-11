@@ -109,13 +109,15 @@ export default class Page {
       rangePicker: rangePickerEl,
     };
 
-    this.element.addEventListener("date-select", (event) => {
-      const selectedDate = event.detail;
-      this.updateElements(selectedDate.from, selectedDate.to);
-    });
+    this.element.addEventListener("date-select", this.handleDateSelect);
 
     return this.element;
   }
+
+  handleDateSelect = (event) => {
+    const selectedDate = event.detail;
+    this.updateElements(selectedDate.from, selectedDate.to);
+  };
 
   updateElements(from, to) {
     // Update ColumnCharts
@@ -156,5 +158,6 @@ export default class Page {
 
   remove = () => {
     this.element.remove();
+    this.element.removeEventListener("date-select", this.handleDateSelect);
   };
 }
